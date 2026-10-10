@@ -212,29 +212,48 @@ def get_actor_detail(actor_id):
 
 def stream_remote_video_url(remote_url, server_id="server-1"):
     """
-    High-Performance Zero-Buffering Video Streaming Engine
-    Supports multi-server routing, chunked byte ranges (206 Partial Content),
-    and instant seeking with automated failover.
+    High-Performance Zero-Buffering Video Streaming Proxy.
+    Supports chunked byte-range delivery (206 Partial Content) for instant seeking.
+    Redirects the browser directly to Archive.org for large public-domain files
+    to avoid a slow Python proxy bottleneck.
     """
+    # For Archive.org URLs, redirect the browser directly — much faster than proxying
+    if "archive.org/download/" in remote_url:
+        from flask import redirect
+        return redirect(remote_url, code=302)
+
     range_header = request.headers.get("Range", None)
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-        "Accept": "*/*"
+        "Accept": "*/*",
+        "Referer": "https://archive.org/"
     }
     if range_header:
         headers["Range"] = range_header
 
     try:
-        req = requests.get(remote_url, headers=headers, stream=True, timeout=8)
-        status_code = req.status_code if req.status_code in [200, 206] else 200
+        req = requests.get(remote_url, headers=headers, stream=True, timeout=20)
+        if req.status_code not in (200, 206, 301, 302):
+            app.logger.warning("Remote stream returned %s for %s", req.status_code, remote_url)
+            return jsonify({"error": "Stream source returned an error", "status": req.status_code}), 502
+
+        status_code = req.status_code if req.status_code in (200, 206) else 200
+
+        # Detect content type from URL or response headers
+        url_lower = remote_url.lower()
+        if url_lower.endswith(".mkv"):
+            mime = "video/x-matroska"
+        elif url_lower.endswith(".webm"):
+            mime = "video/webm"
+        else:
+            mime = req.headers.get("Content-Type", "video/mp4").split(";")[0]
 
         def generate_chunks():
-            # 512 KB chunk size delivers instant initial burst for zero-buffering
             for chunk in req.iter_content(chunk_size=1024 * 512):
                 if chunk:
                     yield chunk
 
-        rv = Response(generate_chunks(), status=status_code, mimetype="video/mp4")
+        rv = Response(generate_chunks(), status=status_code, mimetype=mime)
         if "Content-Range" in req.headers:
             rv.headers["Content-Range"] = req.headers["Content-Range"]
         if "Content-Length" in req.headers:
@@ -242,13 +261,11 @@ def stream_remote_video_url(remote_url, server_id="server-1"):
         rv.headers["Accept-Ranges"] = "bytes"
         rv.headers["X-Stream-Server"] = server_id
         rv.headers["X-Accel-Buffering"] = "no"
-        rv.headers["X-Zero-Buffer"] = "Enabled"
         rv.headers["Cache-Control"] = "public, max-age=86400"
         return rv
     except Exception as e:
-        app.logger.warning("Stream server %s failed: %s, failing over to local buffer.", server_id, e)
-        fallback_path = os.path.join(app.root_path, "static", "videos", "sample1.mp4")
-        return send_file(fallback_path, mimetype="video/mp4")
+        app.logger.warning("Stream proxy failed for %s: %s", remote_url, e)
+        return jsonify({"error": "Could not reach stream source", "detail": str(e)}), 503
 
 @app.route("/api/stream/<media_id>")
 def stream_media(media_id):
@@ -280,53 +297,11 @@ def stream_media(media_id):
     if target_stream_url and target_stream_url.startswith("http"):
         return stream_remote_video_url(target_stream_url, server_id=server_id)
 
-    # Local fallback (only when the media has no remote URL at all)
-    sample_path = media.get("sample_video", "/static/videos/sample1.mp4")
-    if sample_path.startswith("/"):
-        sample_path = sample_path[1:]
-
-    full_path = os.path.join(app.root_path, sample_path)
-    if not os.path.exists(full_path):
-        full_path = os.path.join(app.root_path, "static", "videos", "sample1.mp4")
-
-    # Local range handler
-    file_size = os.path.getsize(full_path)
-    range_header = request.headers.get("Range", None)
-    if not range_header:
-        rv = send_file(full_path, mimetype="video/mp4")
-        rv.headers["Accept-Ranges"] = "bytes"
-        return rv
-
-    byte1, byte2 = 0, None
-    m = re.search(r"bytes=(\d+)-(\d*)", range_header)
-    if m:
-        g = m.groups()
-        byte1 = int(g[0])
-        if g[1]:
-            byte2 = int(g[1])
-
-    if byte2 is None or byte2 >= file_size:
-        byte2 = file_size - 1
-
-    length = byte2 - byte1 + 1
-
-    def partial_stream():
-        with open(full_path, "rb") as f:
-            f.seek(byte1)
-            remaining = length
-            while remaining > 0:
-                chunk = f.read(min(remaining, 1024 * 512))
-                if not chunk:
-                    break
-                remaining -= len(chunk)
-                yield chunk
-
-    rv = Response(partial_stream(), 206, mimetype="video/mp4")
-    rv.headers["Content-Range"] = f"bytes {byte1}-{byte2}/{file_size}"
-    rv.headers["Accept-Ranges"] = "bytes"
-    rv.headers["Content-Length"] = str(length)
-    rv.headers["X-Stream-Server"] = server_id
-    return rv
+    # No stream URL available — return a clear error so the frontend shows the overlay
+    return jsonify({
+        "error": "no_stream",
+        "message": "No free public stream is available for this title."
+    }), 404
 
 @app.route("/api/download/<media_id>")
 def download_media(media_id):
