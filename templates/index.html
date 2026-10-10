@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en" data-theme-palette="emerald">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>MAG Stream — High Performance Zero-Buffer Cinema</title>
+  <meta name="description" content="MAG Stream - High performance zero-buffering streaming platform for movies, web series, and anime with 4K UHD playback, multi-server acceleration and instant downloads.">
+
+  <!-- Google Fonts: Bebas Neue, Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Phosphor Icons: Full Modern Icon Library -->
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.css">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#catalogAnchor">Skip to catalog</a>
+
+  <!-- Cinematic Ambient Glow Canvas -->
+  <canvas class="cinematic-ambient-bg" id="cinematicAmbientBg"></canvas>
+
+  <!-- Top Bar Navigation — React Bits PillNav Architecture -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-container">
+      <div class="header-left">
+        <!-- Brand Logo Lockup -->
+        <div class="header-brand-wrap">
+          <a href="#" class="brand-logo-link" id="brandLogoLink" aria-label="MAG Stream Home" title="MAG Stream Home">
+            <div class="brand-logo-wrapper">
+              <div class="brand-logo-halo" aria-hidden="true"></div>
+              <div class="brand-logo-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="5 3 19 12 5 21 5 3" fill="var(--accent-primary)" stroke="var(--accent-primary)"></polygon>
+                </svg>
+              </div>
+            </div>
+            <span class="brand-name">
+              <span class="brand-word-cine">MAG</span><span class="brand-word-ora">Stream</span>
+              <span class="brand-badge-tag">ULTRA 10G</span>
+            </span>
+          </a>
+        </div>
+
+        <!-- React Bits PillNav Component -->
+        <div class="pill-nav-container desktop-only">
+          <nav class="pill-nav" id="mainNav" aria-label="Primary Navigation">
+            <ul class="pill-list" role="menubar">
+              <li role="none">
+                <button role="menuitem" class="pill active" data-category="all">
+                  <span class="hover-circle" aria-hidden="true"></span>
+                  <i class="ph-fill ph-house"></i> Home
+                </button>
+              </li>
+              <li role="none">
+                <button role="menuitem" class="pill" data-category="hollywood">
+                  <span class="hover-circle" aria-hidden="true"></span>
+                  <i class="ph-bold ph-film-strip"></i> Hollywood
+                </button>
+              </li>
+              <li role="none">
+                <button role="menuitem" class="pill" data-category="bollywood">
+                  <span class="hover-circle" aria-hidden="true"></span>
+                  <i class="ph-bold ph-sparkle"></i> Bollywood
+                </button>
+              </li>
+              <li role="none">
+                <button role="menuitem" class="pill" data-category="web_series">
+                  <span class="hover-circle" aria-hidden="true"></span>
+                  <i class="ph-bold ph-television"></i> Series
+                </button>
+              </li>
+              <li role="none">
+                <button role="menuitem" class="pill" data-category="bangla">
+                  <span class="hover-circle" aria-hidden="true"></span>
+                  <i class="ph-bold ph-film-slate"></i> Bangla
+                </button>
+              </li>
+              <li role="none">
+                <button role="menuitem" class="pill" data-category="anime">
+                  <span class="hover-circle" aria-hidden="true"></span>
+                  <i class="ph-bold ph-sword"></i> Anime
+                </button>
+              </li>
+              <li role="none">
+                <button role="menuitem" class="pill" data-category="classics">
+                  <span class="hover-circle" aria-hidden="true"></span>
+                  <i class="ph-bold ph-scroll"></i> Classics
+                </button>
+              </li>
+              <li role="none">
+                <button role="menuitem" class="pill" id="navActorsPill">
+                  <span class="hover-circle" aria-hidden="true"></span>
+                  <i class="ph-bold ph-user-circle"></i> Actors
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Live Search Bar Pill -->
+        <div class="header-search-pill" id="headerSearchPill">
+          <i class="ph-bold ph-magnifying-glass search-icon" aria-hidden="true"></i>
+          <input type="text" id="searchInput" placeholder="Search movies, series, actors..." autocomplete="off" aria-label="Search all media catalog">
+          <span class="search-kbd-chip" title="Press Ctrl + K to search">Ctrl K</span>
+          <button class="search-clear" id="searchClearBtn" title="Clear search" aria-label="Clear search">
+            <i class="ph-bold ph-x"></i>
+          </button>
+        </div>
+
+        <!-- Color Theme Switcher Dropdown (Allows changing color palettes) -->
+        <div class="theme-picker-wrapper">
+          <button class="theme-palette-btn" id="themePaletteBtn" title="Change Color Palette">
+            <span class="theme-color-dot" id="themeColorDot"></span>
+            <span id="themeColorLabel">Emerald</span>
+            <i class="ph-bold ph-caret-down"></i>
+          </button>
+          <div class="theme-picker-dropdown" id="themePickerDropdown">
+            <button class="palette-option active" data-palette="emerald">
+              <span class="palette-dot emerald"></span> Cyber Emerald
+            </button>
+            <button class="palette-option" data-palette="amethyst">
+              <span class="palette-dot amethyst"></span> Cosmic Amethyst
+            </button>
+            <button class="palette-option" data-palette="cyan">
+              <span class="palette-dot cyan"></span> Arctic Cyan
+            </button>
+            <button class="palette-option" data-palette="amber">
+              <span class="palette-dot amber"></span> Solar Amber
+            </button>
+          </div>
+        </div>
+
+        <!-- Watchlist Trigger Button -->
+        <button class="header-action-icon" id="watchlistToggleBtn" title="My Watchlist" aria-label="My Saved Watchlist">
+          <i class="ph-bold ph-bookmark-simple" aria-hidden="true"></i>
+          <span class="watchlist-badge" id="watchlistBadge" style="display: none;">0</span>
+        </button>
+
+        <!-- ICC FTP 10G Status Indicator -->
+        <div class="ftp-status-pill desktop-only" title="ICC FTP 10G High-Speed Server Active">
+          <span class="live-dot"></span>
+          <span>ICC 10G: READY</span>
+        </div>
+
+        <!-- Multi-Source Sync Button -->
+        <button class="sync-btn desktop-only" id="syncSourcesBtn" title="Sync latest titles from ICC, CircleFTP & Torrent feeds">
+          <i class="ph-bold ph-arrows-clockwise"></i>
+          <span>Sync</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+
+    <!-- "THE SPOTLIGHT" Cinema Hero Showcase (3D Stage & Interactive Poster Wings) -->
+    <section class="cinema-hero" id="heroSection" aria-label="Featured cinema showcase">
+      <div class="cinema-art" aria-hidden="true">
+        <div class="cinema-art-image" id="heroBgImage"></div>
+      </div>
+
+      <div class="cinema-masthead">
+        <div class="cinema-edition">
+          <i class="ph-fill ph-sparkle" aria-hidden="true"></i>
+          THE SPOTLIGHT
+          <span>Fresh stories. Every day.</span>
+        </div>
+        <div class="cinema-live" id="heroLiveBadge">
+          <span></span>
+          <span>STREAM ENGINE ONLINE</span>
+        </div>
+      </div>
+
+      <div class="cinema-stage">
+        <!-- Stage Left: Headline, Metadata, Actions -->
+        <div class="cinema-copy">
+          <div class="cinema-kicker">
+            <b id="heroFeatureLabel">FEATURED</b>
+            <span id="heroEyebrow">CURATED CINEMA</span>
+          </div>
+          <h1 class="cinema-title" id="heroMainTitle">
+            Your next<br><span>great escape.</span>
+          </h1>
+          <div class="cinema-meta">
+            <span id="heroMetaYear">2024</span>
+            <span id="heroMetaAudio">Dual Audio [Hindi + Eng]</span>
+            <span id="heroMetaSource">ICC 10G Ultra High Speed</span>
+            <span class="cinema-quality" id="heroMetaQuality">4K UHD</span>
+          </div>
+          <p class="cinema-description" id="heroDescription">
+            Big stories, high-octane blockbusters, and complete seasons, selected for your next movie night.
+          </p>
+          <div class="cinema-actions">
+            <button class="cinema-action cinema-action-primary" id="heroPlayBtn">
+              <i class="ph-fill ph-play" aria-hidden="true"></i>
+              <span>Watch now</span>
+              <i class="ph-bold ph-arrow-up-right" aria-hidden="true"></i>
+            </button>
+            <a class="cinema-action" id="heroDownloadBtn" href="#catalogAnchor">
+              <i class="ph-bold ph-download-simple" aria-hidden="true"></i>
+              <span>Download</span>
+            </a>
+            <button class="cinema-action cinema-action-save" id="heroListBtn" aria-label="Add to Watchlist" aria-pressed="false" title="Add to Watchlist">
+              <i class="ph-bold ph-plus" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="cinema-benefits">
+            <span><i class="ph-fill ph-lightning" aria-hidden="true"></i> Instant zero-buffering stream</span>
+            <span><i class="ph-bold ph-monitor-play" aria-hidden="true"></i> 4K UHD &amp; 1080p master quality</span>
+          </div>
+        </div>
+
+        <!-- Stage Right: 3D Poster Gallery Stage -->
+        <div class="cinema-gallery" aria-label="Featured movie poster showcase">
+          <div class="cinema-orbit" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="cinema-ghost-number" id="heroTicketNumber" aria-hidden="true">01</span>
+
+          <div class="cinema-vault-label" aria-hidden="true">
+            <i class="ph-fill ph-shield-star"></i>
+            <span><b>MAG STREAM</b><br>PREMIERE</span>
+          </div>
+
+          <!-- Interactive 3D Left Wing (Previous Movie) -->
+          <button class="cinema-wing cinema-wing-left" id="heroPreviousPoster" aria-label="Previous featured title">
+            <img alt="Previous movie" id="heroPreviousImg" src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80">
+            <span><i class="ph-bold ph-caret-left"></i> <b>PREV</b></span>
+          </button>
+
+          <!-- Center 3D Poster Shell -->
+          <div class="cinema-poster-shell">
+            <button class="cinema-poster" id="heroPosterPlayBtn" aria-label="Play featured film">
+              <img id="heroPosterImg" alt="Featured Poster" class="cinema-poster-image" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=700&auto=format&fit=crop&q=80">
+              <div class="cinema-poster-quality" id="heroPosterQuality">4K UHD</div>
+              <div class="cinema-poster-caption">
+                <div class="caption-details">
+                  <span class="caption-eyebrow">TONIGHT'S FEATURE</span>
+                  <strong id="heroPosterCaption">Loading title...</strong>
+                </div>
+                <div class="cinema-poster-play" title="Play Now">
+                  <i class="ph-fill ph-play" aria-hidden="true"></i>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <!-- Interactive 3D Right Wing (Next Movie) -->
+          <button class="cinema-wing cinema-wing-right" id="heroNextPoster" aria-label="Next featured title">
+            <img alt="Next movie" id="heroNextImg" src="https://images.unsplash.com/photo-1509281373149-e957c6296406?w=500&auto=format&fit=crop&q=80">
+            <span><b>NEXT</b> <i class="ph-bold ph-caret-right"></i></span>
+          </button>
+
+          <div class="cinema-gallery-note" aria-hidden="true">
+            <span class="cinema-gallery-line"></span>
+            <span><i class="ph-fill ph-sparkle"></i> HANDPICKED FOR YOUR SCREEN</span>
+            <span class="cinema-gallery-line"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cinema Reel Carousel (Trending Reel Track) -->
+      <div class="cinema-reel">
+        <div class="cinema-reel-heading">
+          <div class="cinema-reel-title">
+            <h2><span></span> Next on your screen</h2>
+            <span>Discover something worth watching</span>
+          </div>
+          <div class="cinema-reel-controls">
+            <span class="cinema-counter" id="heroCounter"><b>01</b> / 10</span>
+            <button class="cinema-control" id="heroAutoplayBtn" aria-label="Pause autoplay" title="Toggle Autoplay">
+              <i class="ph-fill ph-pause" id="heroAutoplayIcon" aria-hidden="true"></i>
+            </button>
+            <button class="cinema-control" id="carouselPrev" aria-label="Previous title" title="Previous film">
+              <i class="ph-bold ph-arrow-left" aria-hidden="true"></i>
+            </button>
+            <button class="cinema-control" id="carouselNext" aria-label="Next title" title="Next film">
+              <i class="ph-bold ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+        <div class="cinema-reel-track" id="carouselTrack" role="group" aria-label="Choose a featured film">
+          <!-- Populated dynamically with top 10 thumbnails -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Discovery Dock & Discovery Filters Bar -->
+    <section class="filters-container" id="catalogAnchor" aria-label="Discovery dock">
+      <div class="discovery-dock-brand">
+        <div class="discovery-beacon-orb">
+          <i class="ph-fill ph-compass" aria-hidden="true"></i>
+          <span class="beacon-pulse-ring"></span>
+        </div>
+        <div class="discovery-dock-copy">
+          <span class="discovery-tag">DISCOVER</span>
+          <strong class="discovery-title">Explore Catalog</strong>
+        </div>
+      </div>
+
+      <!-- Horizontal Scrollable Category Chips -->
+      <div class="categories-scroll" id="categoryChips">
+        <button class="chip active" data-category="all">
+          <i class="ph-bold ph-squares-four"></i> All Content
+        </button>
+        <button class="chip" data-category="hollywood">
+          <i class="ph-bold ph-film-strip"></i> Hollywood
+        </button>
+        <button class="chip" data-category="bollywood">
+          <i class="ph-bold ph-sparkle"></i> Bollywood
+        </button>
+        <button class="chip" data-category="web_series">
+          <i class="ph-bold ph-television"></i> Web Series
+        </button>
+        <button class="chip" data-category="bangla">
+          <i class="ph-bold ph-film-slate"></i> Bangla Cinema
+        </button>
+        <button class="chip" data-category="anime">
+          <i class="ph-bold ph-sword"></i> Anime
+        </button>
+        <button class="chip" data-category="classics">
+          <i class="ph-bold ph-scroll"></i> Classics (1888-1960)
+        </button>
+        <button class="chip" data-category="trending">
+          <i class="ph-bold ph-fire"></i> Trending
+        </button>
+        <button class="chip" data-category="top_rated">
+          <i class="ph-bold ph-star"></i> Top Rated
+        </button>
+      </div>
+
+      <!-- Filters Right: Language, Quality, Sorting -->
+      <div class="filters-right">
+        <div class="custom-select">
+          <select id="langSelect" aria-label="Filter by Language">
+            <option value="all">🌐 All Languages</option>
+            <option value="English">🇺🇸 English</option>
+            <option value="Hindi">🇮🇳 Hindi</option>
+            <option value="Bengali">🇧🇩 Bengali</option>
+            <option value="Korean">🇰🇷 Korean</option>
+            <option value="Japanese">🇯🇵 Japanese</option>
+          </select>
+        </div>
+
+        <div class="custom-select">
+          <select id="qualitySelect" aria-label="Filter by Quality">
+            <option value="">All Qualities</option>
+            <option value="4K">4K UHD</option>
+            <option value="1080p">1080p FHD</option>
+            <option value="720p">720p HD</option>
+          </select>
+        </div>
+
+        <div class="custom-select">
+          <select id="sortSelect" aria-label="Sort Order">
+            <option value="latest">Newest First</option>
+            <option value="rating">Top Rated</option>
+            <option value="name">Title (A-Z)</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Shelves & Browse Grid Wrapper -->
+    <div class="content-wrapper" id="contentArea">
+
+      <!-- Dynamic Section Rails (Shelves on Home view) -->
+      <div id="railsContainer" class="rails-container">
+        <!-- Rendered by app.js: 01 Hollywood, 02 Trending, 03 Bollywood, 04 Series, etc. -->
+      </div>
+
+      <!-- Catalog Grid Section (Active when browsing or searching) -->
+      <section class="grid-section" id="gridSection" style="display: none;">
+        <div class="section-header">
+          <div class="shelf-number">✦</div>
+          <div class="section-title-wrap">
+            <span class="section-eyebrow"><i class="ph-bold ph-funnel"></i> FILTERED VIEW</span>
+            <h2 class="section-title" id="gridTitle">Browse Collection</h2>
+            <div class="section-subtitle">
+              <span id="gridCount">Showing 0 titles</span>
+            </div>
+          </div>
+          <div class="catalog-header-tools">
+            <button class="section-view-all" id="backToHomeBtn">
+              <i class="ph-bold ph-arrow-left"></i> Back to Shelves
+            </button>
+          </div>
+        </div>
+
+        <div class="movies-grid" id="moviesGrid">
+          <!-- Populated by app.js with movie-card elements -->
+        </div>
+
+        <div class="load-more-container" id="paginationContainer" style="display: none;">
+          <button class="btn-load-more" id="loadMoreBtn">
+            <i class="ph-bold ph-plus-circle"></i>
+            <span>Load More Titles</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Actors Showcase Section -->
+      <section class="grid-section" id="actorsSection" style="display: none;">
+        <div class="section-header">
+          <div class="shelf-number">★</div>
+          <div class="section-title-wrap">
+            <span class="section-eyebrow"><i class="ph-fill ph-star"></i> LEGENDARY CINEMA TALENT</span>
+            <h2 class="section-title">Featured Actors &amp; Icons</h2>
+            <div class="section-subtitle">
+              <span>Explore filmographies from Charlie Chaplin to Shah Rukh Khan &amp; Cillian Murphy</span>
+            </div>
+          </div>
+          <div class="catalog-header-tools">
+            <button class="section-view-all" id="backFromActorsBtn">
+              <i class="ph-bold ph-arrow-left"></i> Back to Movies
+            </button>
+          </div>
+        </div>
+
+        <div class="actors-grid" id="actorsGrid">
+          <!-- Populated with actor cards -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Cinema Theater Video Player & Series Details Modal -->
+  <div class="modal-overlay" id="playerModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="cinema-theater-dialog" tabindex="-1">
+      <div class="cinema-ambient-glow" id="cinemaAmbientGlow"></div>
+
+      <!-- Theater Modal Header -->
+      <div class="cinema-modal-header">
+        <div class="modal-title-group">
+          <span class="modal-badge green" id="modalQuality">1080p FHD</span>
+          <span class="modal-badge amber" id="modalAudio">Dual Audio</span>
+          <h3 class="modal-title" id="modalTitle">Movie Title</h3>
+        </div>
+        <div class="modal-header-actions">
+          <a class="cinema-hdr-btn" id="modalDownloadBtn" href="#" target="_blank" download title="Download Media">
+            <i class="ph-bold ph-download-simple"></i>
+            <span>Download</span>
+          </a>
+          <button class="cinema-hdr-btn" id="modalVlcBtn" title="Play Lossless Stream in VLC Media Player">
+            <i class="ph-bold ph-television"></i>
+            <span>VLC</span>
+          </button>
+          <button class="cinema-hdr-btn" id="modalPotPlayerBtn" title="Play in PotPlayer">
+            <i class="ph-bold ph-film-strip"></i>
+            <span>PotPlayer</span>
+          </button>
+          <button class="cinema-hdr-btn icon-only" id="modalCopyBtn" title="Copy Stream Link">
+            <i class="ph-bold ph-copy"></i>
+          </button>
+          <button class="cinema-hdr-btn icon-only" id="modalWatchlistBtn" title="Add to Watchlist">
+            <i class="ph-bold ph-bookmark-simple"></i>
+          </button>
+          <button class="modal-close-btn" id="modalCloseBtn" title="Close Theater (Esc)" aria-label="Close Player">
+            <i class="ph-bold ph-x"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Anyplay-style Multi-Server Zero-Buffer Switcher Bar -->
+      <div class="player-server-bar" id="playerServerBar">
+        <div class="server-bar-label">
+          <i class="ph-fill ph-broadcast"></i>
+          <span>SERVERS:</span>
+        </div>
+        <div class="server-tabs" id="serverTabs">
+          <button class="server-tab active" data-server="server-1" title="Server 1: ICC 10G Ultra">
+            <span class="server-dot optimal"></span>
+            <strong>Server 1: ICC 10G</strong>
+            <small>2ms</small>
+          </button>
+          <button class="server-tab" data-server="server-2" title="Server 2: Cloudflare Edge CDN">
+            <span class="server-dot high"></span>
+            <strong>Server 2: Cloudflare CDN</strong>
+            <small>7ms</small>
+          </button>
+          <button class="server-tab" data-server="server-3" title="Server 3: Archive Media Cloud">
+            <span class="server-dot active"></span>
+            <strong>Server 3: Archive Cloud</strong>
+            <small>12ms</small>
+          </button>
+          <button class="server-tab" data-server="server-4" title="Server 4: MAG Ultra RAM Cache">
+            <span class="server-dot ram"></span>
+            <strong>Server 4: RAM Buffer</strong>
+            <small>0ms</small>
+          </button>
+        </div>
+        <div class="server-status-pill">
+          <span class="pulse-dot"></span>
+          <span>Zero-Buffer Active</span>
+        </div>
+      </div>
+
+      <!-- Cinema Video Player Container -->
+      <div class="cinema-player-wrapper" id="playerContainer" tabindex="0">
+        <!-- Minimal Spinner Loader -->
+        <div class="player-loader" id="playerLoader">
+          <div class="cinema-minimal-spinner">
+            <div class="minimal-spinner-ring"></div>
+            <div class="minimal-spinner-core">
+              <i class="ph-fill ph-play"></i>
+            </div>
+          </div>
+          <div class="minimal-loader-label">Buffering stream from ICC 10G Server...</div>
+        </div>
+
+        <!-- Center Click Feedback Bloom -->
+        <div class="center-feedback-overlay" id="centerFeedback">
+          <div class="feedback-bubble">
+            <i class="ph-fill ph-play" id="feedbackIcon"></i>
+          </div>
+        </div>
+
+        <!-- Double click seek ripples -->
+        <div class="seek-ripple seek-left" id="seekRippleLeft">
+          <div class="ripple-content"><i class="ph-bold ph-rewind"></i> <span>-10s</span></div>
+        </div>
+        <div class="seek-ripple seek-right" id="seekRippleRight">
+          <div class="ripple-content"><i class="ph-bold ph-fast-forward"></i> <span>+10s</span></div>
+        </div>
+
+        <!-- Floating Volume HUD Pill -->
+        <div class="player-hud-pill" id="playerHudPill">
+          <i class="ph-fill ph-speaker-high" id="hudIcon"></i>
+          <div class="hud-bar-wrap"><div class="hud-bar-fill" id="hudBarFill"></div></div>
+          <span id="hudValue">100%</span>
+        </div>
+
+        <!-- HTML5 Video Element -->
+        <video id="videoPlayer" preload="metadata" playsinline></video>
+
+        <!-- Cinema Auto-Hiding Control Bar -->
+        <div class="cinema-controls" id="cinemaControls">
+          <!-- Timeline Scrub Slider -->
+          <div class="scrub-container" id="scrubContainer" role="slider" aria-label="Playback position">
+            <div class="scrub-hover-tooltip" id="scrubTooltip">00:00</div>
+            <div class="scrub-track" id="scrubTrack">
+              <div class="scrub-buffer" id="scrubBuffer"></div>
+              <div class="scrub-progress" id="scrubProgress">
+                <div class="scrub-thumb"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls Row -->
+          <div class="controls-row">
+            <div class="controls-left">
+              <button class="c-btn" id="ctrlPlayBtn" title="Play/Pause (Space)">
+                <i class="ph-fill ph-play" id="ctrlPlayIcon"></i>
+              </button>
+              <button class="c-btn" id="ctrlRewindBtn" title="Rewind 10s (Left Arrow)">
+                <i class="ph-bold ph-rewind"></i>
+              </button>
+              <button class="c-btn" id="ctrlForwardBtn" title="Forward 10s (Right Arrow)">
+                <i class="ph-bold ph-fast-forward"></i>
+              </button>
+
+              <div class="volume-group">
+                <button class="c-btn" id="ctrlMuteBtn" title="Mute/Unmute (M)">
+                  <i class="ph-fill ph-speaker-high" id="ctrlVolumeIcon"></i>
+                </button>
+                <div class="volume-slider-box" id="volumeSliderBox">
+                  <div class="volume-track">
+                    <div class="volume-fill" id="volumeFill" style="width: 100%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="time-display" id="ctrlTimeDisplay">
+                <span id="timeCurrent">00:00</span> / <span id="timeDuration">00:00</span>
+              </div>
+            </div>
+
+            <div class="controls-right">
+              <button class="c-btn" id="ctrlSpeedBtn" title="Playback Speed">
+                <span style="font-size: 11px; font-weight:800;" id="ctrlSpeedLabel">1.0x</span>
+              </button>
+              <button class="c-btn" id="ctrlAspectBtn" title="Toggle Aspect Ratio">
+                <i class="ph-bold ph-frame-corners"></i>
+              </button>
+              <button class="c-btn" id="ctrlSnapshotBtn" title="Capture Snapshot (S)">
+                <i class="ph-bold ph-camera"></i>
+              </button>
+              <button class="c-btn" id="ctrlPipBtn" title="Picture-in-Picture (P)">
+                <i class="ph-bold ph-picture-in-picture"></i>
+              </button>
+              <button class="c-btn" id="ctrlHelpBtn" title="Shortcuts (?)">
+                <i class="ph-bold ph-question"></i>
+              </button>
+              <button class="c-btn" id="ctrlFullscreenBtn" title="Fullscreen (F)">
+                <i class="ph-bold ph-arrows-out-simple" id="fullscreenIcon"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shortcuts Overlay -->
+        <div class="shortcuts-overlay" id="shortcutsOverlay">
+          <div class="shortcuts-card">
+            <div class="shortcuts-header">
+              <h4>Player Shortcuts</h4>
+              <button class="c-btn" id="closeShortcutsBtn"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="shortcuts-grid">
+              <div class="shortcut-item"><kbd>Space</kbd> / <kbd>K</kbd> <span>Play / Pause</span></div>
+              <div class="shortcut-item"><kbd>→</kbd> / <kbd>L</kbd> <span>Seek Forward 10s</span></div>
+              <div class="shortcut-item"><kbd>←</kbd> / <kbd>J</kbd> <span>Seek Backward 10s</span></div>
+              <div class="shortcut-item"><kbd>↑</kbd> / <kbd>↓</kbd> <span>Volume Up / Down</span></div>
+              <div class="shortcut-item"><kbd>M</kbd> <span>Mute / Unmute</span></div>
+              <div class="shortcut-item"><kbd>F</kbd> <span>Toggle Fullscreen</span></div>
+              <div class="shortcut-item"><kbd>S</kbd> <span>Snapshot Frame</span></div>
+              <div class="shortcut-item"><kbd>P</kbd> <span>Picture-in-Picture</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TV Series Season & Episode Picker -->
+      <div class="series-section" id="seriesSection" style="display: none;">
+        <div class="series-header">
+          <h4><i class="ph-fill ph-film-slate"></i> Seasons &amp; Episodes</h4>
+          <span style="font-size: 11px; color: var(--accent-primary); font-weight:700;" id="seriesEpisodesCount">Select an episode</span>
+        </div>
+        <div class="series-season-bar" id="seriesSeasonTabs">
+          <!-- Season tabs -->
+        </div>
+        <div class="episodes-grid" id="episodesList">
+          <!-- Episode cards -->
+        </div>
+      </div>
+
+      <!-- Cinema Spec Dock -->
+      <div class="cinema-spec-dock">
+        <div class="spec-chips">
+          <div class="spec-chip">
+            <i class="ph-bold ph-lightning" style="color:var(--accent-primary);"></i>
+            <span>Server: <strong id="modalServer">Server 1 (ICC 10G)</strong></span>
+          </div>
+          <div class="spec-chip">
+            <i class="ph-bold ph-hard-drive" style="color:#38bdf8;"></i>
+            <span>Size: <strong id="modalSize">1.8 GB</strong></span>
+          </div>
+          <div class="spec-chip">
+            <i class="ph-bold ph-calendar-blank" style="color:#94a3b8;"></i>
+            <span>Year: <strong id="modalYear">2024</strong></span>
+          </div>
+          <div class="spec-chip">
+            <i class="ph-bold ph-film-slate" style="color:#a855f7;"></i>
+            <span>Category: <strong id="modalCategoryTag">Hollywood</strong></span>
+          </div>
+        </div>
+        <div class="spec-chip">
+          <span class="pulse-dot"></span>
+          <span>Zero-Buffer CDN Acceleration Active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Watchlist Drawer -->
+  <aside class="watchlist-drawer" id="watchlistDrawer" aria-label="My Watchlist">
+    <div class="watchlist-header">
+      <h3><i class="ph-fill ph-bookmark-simple"></i> Saved Watchlist</h3>
+      <button class="c-btn" id="closeWatchlistBtn"><i class="ph-bold ph-x"></i></button>
+    </div>
+    <div class="watchlist-list" id="watchlistItems">
+      <div class="watchlist-empty">No saved movies yet. Click the + or bookmark icon on any title to save it.</div>
+    </div>
+  </aside>
+
+  <!-- Modern Cinema Footer -->
+  <footer class="site-footer">
+    <div class="footer-glow" aria-hidden="true"></div>
+    <div class="footer-container">
+      <div class="footer-brand">
+        <h3>MAG<span>Stream</span></h3>
+        <p>Your private front-row seat to blockbuster cinema, complete TV series, anime and immortal classics with zero-buffer multi-server acceleration.</p>
+        <div class="footer-live">
+          <span class="live-dot"></span>
+          <span>ICC 10G HIGH-SPEED MIRROR ACTIVE</span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-column-heading">
+          <span>01</span>
+          <h4>Explore Cinema</h4>
+        </div>
+        <ul>
+          <li><a href="#" onclick="selectCategory('hollywood'); return false;"><span>01</span> <strong>Hollywood Blockbusters</strong> <i class="ph-bold ph-arrow-right"></i></a></li>
+          <li><a href="#" onclick="selectCategory('bollywood'); return false;"><span>02</span> <strong>Bollywood Hits</strong> <i class="ph-bold ph-arrow-right"></i></a></li>
+          <li><a href="#" onclick="selectCategory('web_series'); return false;"><span>03</span> <strong>Web Series &amp; TV</strong> <i class="ph-bold ph-arrow-right"></i></a></li>
+          <li><a href="#" onclick="selectCategory('bangla'); return false;"><span>04</span> <strong>Bangla Cinema</strong> <i class="ph-bold ph-arrow-right"></i></a></li>
+          <li><a href="#" onclick="selectCategory('anime'); return false;"><span>05</span> <strong>Anime &amp; Animation</strong> <i class="ph-bold ph-arrow-right"></i></a></li>
+        </ul>
+      </div>
+
+      <div class="footer-stats">
+        <div class="footer-column-heading">
+          <span>02</span>
+          <h4>Inside the Library</h4>
+        </div>
+        <div class="footer-stat-grid">
+          <div class="stat-pill">
+            <i class="ph-fill ph-film-strip"></i>
+            <div>
+              <strong id="statMediaCount">12,800+</strong>
+              <small>Media Catalog</small>
+            </div>
+          </div>
+          <div class="stat-pill">
+            <i class="ph-fill ph-lightning"></i>
+            <div>
+              <strong>10 Gbps</strong>
+              <small>Zero Buffering</small>
+            </div>
+          </div>
+          <div class="stat-pill">
+            <i class="ph-fill ph-sparkle"></i>
+            <div>
+              <strong>4K &amp; 1080p</strong>
+              <small>Master Quality</small>
+            </div>
+          </div>
+          <div class="stat-pill">
+            <i class="ph-fill ph-users"></i>
+            <div>
+              <strong>Multi-Lang</strong>
+              <small>Dual Audio Feeds</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 MAG Stream — High Performance Cinema Experience</p>
+      <a href="#heroSection">Back to top <i class="ph-bold ph-arrow-up"></i></a>
+    </div>
+  </footer>
+
+  <!-- Mobile Floating Glass Bottom Bar -->
+  <nav class="mobile-bottom-bar" id="mobileBottomBar" aria-label="Mobile navigation">
+    <button class="bottom-bar-item active" data-category="all">
+      <i class="ph-bold ph-house"></i>
+      <span>Home</span>
+    </button>
+    <button class="bottom-bar-item" data-category="hollywood">
+      <i class="ph-bold ph-film-strip"></i>
+      <span>Movies</span>
+    </button>
+    <button class="bottom-bar-item" data-category="web_series">
+      <i class="ph-bold ph-television"></i>
+      <span>Series</span>
+    </button>
+    <button class="bottom-bar-item" id="mobileActorsBtn">
+      <i class="ph-bold ph-user-circle"></i>
+      <span>Actors</span>
+    </button>
+    <button class="bottom-bar-item" id="mobileWatchlistBtn">
+      <i class="ph-bold ph-bookmark-simple"></i>
+      <span>Saved</span>
+    </button>
+  </nav>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Main JavaScript App -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
