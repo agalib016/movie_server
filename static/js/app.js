@@ -930,12 +930,56 @@ document.addEventListener('DOMContentLoaded', () => {
       el.modalWatchlistBtn.onclick = () => toggleWatchlist(item.id);
     }
 
-    // Series Seasons & Episodes Picker
-    if (item.type === 'series' && item.seasons && item.seasons.length) {
+    // Series Seasons & Episodes Picker (handle all series/show types)
+    const isSeriesType = ['series', 'tv_show', 'web_series'].includes(item.type);
+    if (isSeriesType && item.seasons && item.seasons.length) {
       el.seriesSection.style.display = 'block';
       renderSeriesPicker(item);
     } else {
       el.seriesSection.style.display = 'none';
+    }
+
+    el.playerModal.classList.add('is-active');
+    document.body.style.overflow = 'hidden';
+
+    // Remove any previous no-stream overlay
+    const existingOverlay = document.getElementById('noStreamOverlay');
+    if (existingOverlay) existingOverlay.remove();
+
+    // Check if this item actually has a real streamable source
+    const hasStream = item.real_stream_url && item.real_stream_url.trim().length > 0;
+
+    if (!hasStream) {
+      // Show a styled "not available" overlay inside the player container
+      el.videoPlayer.removeAttribute('src');
+      el.videoPlayer.load();
+      if (el.playerLoader) el.playerLoader.classList.remove('is-loading');
+
+      const noStreamOverlay = document.createElement('div');
+      noStreamOverlay.id = 'noStreamOverlay';
+      noStreamOverlay.style.cssText = [
+        'position:absolute', 'inset:0', 'display:flex', 'flex-direction:column',
+        'align-items:center', 'justify-content:center', 'gap:16px',
+        'background:rgba(0,0,0,0.88)', 'z-index:10', 'border-radius:8px',
+        'padding:32px', 'text-align:center'
+      ].join(';');
+      noStreamOverlay.innerHTML = '<i class="ph-bold ph-film-slash" style="font-size:56px;color:var(--accent-primary);opacity:0.8;"></i>'
+        + '<h3 style="color:#fff;font-size:1.2rem;margin:0;">' + item.title + '</h3>'
+        + '<p style="color:#94a3b8;font-size:0.9rem;max-width:360px;margin:0;line-height:1.6;">'
+        + 'This is a <strong style="color:#e2e8f0;">commercial title</strong>. No free public stream is available. '
+        + 'Watch it on Netflix, Prime Video, Hotstar or another official platform.</p>'
+        + '<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;">'
+        + '<a href="/api/download/' + item.id + '" style="padding:10px 22px;background:var(--accent-primary);color:#000;border-radius:999px;font-weight:700;font-size:0.875rem;text-decoration:none;">Download Info</a>'
+        + '<button id="noStreamCloseBtn" style="padding:10px 22px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:999px;font-weight:600;font-size:0.875rem;cursor:pointer;">Close</button>'
+        + '</div>';
+
+      const playerContainer = document.getElementById('playerContainer');
+      if (playerContainer) {
+        playerContainer.style.position = 'relative';
+        playerContainer.appendChild(noStreamOverlay);
+        document.getElementById('noStreamCloseBtn').addEventListener('click', closePlayer);
+      }
+      return;
     }
 
     // Video Source with Multi-Server Routing
@@ -948,9 +992,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.server-tab').forEach(tab => {
       tab.classList.toggle('active', tab.dataset.server === state.currentServer);
     });
-
-    el.playerModal.classList.add('is-active');
-    document.body.style.overflow = 'hidden';
 
     el.videoPlayer.play().catch(() => {
       // Autoplay with audio may require user gesture

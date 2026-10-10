@@ -259,8 +259,12 @@ def stream_media(media_id):
     server_id = request.args.get("server", "server-1")
     episode_num = request.args.get("episode", None)
 
-    # Resolve episode stream URL if requested
+    # Always use this media item's own real_stream_url — never swap it for a
+    # random pool entry.  Server tabs only change the delivery label / CDN
+    # routing header reported to the client, not the actual content source.
     target_stream_url = media.get("real_stream_url")
+
+    # Resolve episode-specific stream URL when playing a series episode
     if episode_num and media.get("seasons"):
         try:
             ep_int = int(episode_num)
@@ -272,23 +276,11 @@ def stream_media(media_id):
         except (ValueError, TypeError):
             pass
 
-    # Multi-server mirror routing
-    from media_fetcher import VERIFIED_STREAM_POOLS
-    if server_id == "server-2":
-        # Cloudflare Edge CDN mirror
-        target_stream_url = VERIFIED_STREAM_POOLS[2]
-    elif server_id == "server-3":
-        # Archive Media Cloud mirror
-        target_stream_url = VERIFIED_STREAM_POOLS[0]
-    elif server_id == "server-4":
-        # RAM Cache mirror
-        target_stream_url = VERIFIED_STREAM_POOLS[4]
-
-    # Stream remote video
+    # Stream the media's own remote video URL
     if target_stream_url and target_stream_url.startswith("http"):
         return stream_remote_video_url(target_stream_url, server_id=server_id)
 
-    # Local fallback
+    # Local fallback (only when the media has no remote URL at all)
     sample_path = media.get("sample_video", "/static/videos/sample1.mp4")
     if sample_path.startswith("/"):
         sample_path = sample_path[1:]

@@ -230,7 +230,7 @@ MEDIA_DATA = [
         "director": "Satyajit Ray",
         "cast_ids": ["satyajit-ray"],
         "icc_ftp_path": "ftp://icc-stream.bd/Disk05/Bengali/Charulata.1964.Criterion.1080p.mkv",
-        "real_stream_url": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4",
+        "real_stream_url": "https://archive.org/download/charulata1964/charulata1964.mp4",
         "is_featured": False,
         "downloads": {
             "720p": {"resolution": "720p HD", "size": "850 MB", "bitrate": "2200 kbps", "format": "MP4 (H.264)"},
@@ -256,7 +256,7 @@ MEDIA_DATA = [
         "director": "Ramesh Sippy",
         "cast_ids": ["amitabh-bachchan"],
         "icc_ftp_path": "ftp://icc-stream.bd/Disk05/Movies/Bollywood/Classics/Sholay.1975.Remastered.1080p.mkv",
-        "real_stream_url": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4",
+        "real_stream_url": "",  # Sholay is a commercial title with no free public stream
         "is_featured": False,
         "downloads": {
             "720p": {"resolution": "720p HD", "size": "1.30 GB", "bitrate": "2300 kbps", "format": "MP4 (H.264)"},
@@ -284,7 +284,7 @@ MEDIA_DATA = [
         "director": "Bong Joon-ho",
         "cast_ids": ["song-kang-ho"],
         "icc_ftp_path": "ftp://icc-stream.bd/Disk04/Asian/Parasite.2019.Criterion.2160p.UHD.mkv",
-        "real_stream_url": "https://vjs.zencdn.net/v/oceans.mp4",
+        "real_stream_url": "",  # Parasite is a commercial title with no free public stream
         "is_featured": False,
         "downloads": {
             "720p": {"resolution": "720p HD", "size": "1.10 GB", "bitrate": "2200 kbps", "format": "MP4 (H.264)"},
@@ -310,7 +310,7 @@ MEDIA_DATA = [
         "director": "Hwang Dong-hyuk",
         "cast_ids": [],
         "icc_ftp_path": "ftp://icc-stream.bd/Disk04/Web_Series/Squid.Game.S01.2160p.NF.WEB-DL.mkv",
-        "real_stream_url": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4",
+        "real_stream_url": "",  # Squid Game is a commercial title with no free public stream
         "is_featured": False,
         "seasons": [
             {
@@ -323,7 +323,7 @@ MEDIA_DATA = [
                         "duration": "59m",
                         "overview": "Hoping to win easy money, a desperate Gi-hun agrees to take part in an enigmatic game.",
                         "thumbnail": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&auto=format&fit=crop&q=80",
-                        "stream_url": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4"
+                        "stream_url": ""
                     }
                 ]
             }
@@ -354,7 +354,7 @@ MEDIA_DATA = [
         "director": "Christopher Nolan",
         "cast_ids": ["cillian-murphy"],
         "icc_ftp_path": "ftp://icc-stream.bd/Disk01/Movies/Hollywood/2023/Oppenheimer.2023.2160p.UHD.BluRay.x265.mkv",
-        "real_stream_url": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4",
+        "real_stream_url": "",  # Oppenheimer is a commercial title with no free public stream
         "is_featured": True,
         "downloads": {
             "720p": {"resolution": "720p HD", "size": "1.25 GB", "bitrate": "2400 kbps", "format": "MP4 (H.264)"},
@@ -380,7 +380,7 @@ MEDIA_DATA = [
         "director": "Denis Villeneuve",
         "cast_ids": ["zendaya"],
         "icc_ftp_path": "ftp://icc-stream.bd/Disk01/Movies/Hollywood/2024/Dune.Part.Two.2024.2160p.UHD.IMAX.mkv",
-        "real_stream_url": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4",
+        "real_stream_url": "",  # Dune: Part Two is a commercial title with no free public stream
         "is_featured": True,
         "downloads": {
             "720p": {"resolution": "720p HD", "size": "1.30 GB", "bitrate": "2400 kbps", "format": "MP4 (H.264)"},
@@ -406,7 +406,7 @@ MEDIA_DATA = [
         "director": "Atlee",
         "cast_ids": ["shah-rukh-khan", "deepika-padukone"],
         "icc_ftp_path": "ftp://icc-stream.bd/Disk05/Movies/Bollywood/2023/Jawan.2023.Extended.Cut.1080p.NF.WEB-DL.mkv",
-        "real_stream_url": "https://vjs.zencdn.net/v/oceans.mp4",
+        "real_stream_url": "",  # Jawan is a commercial title with no free public stream
         "is_featured": True,
         "downloads": {
             "720p": {"resolution": "720p HD", "size": "1.10 GB", "bitrate": "2200 kbps", "format": "MP4 (H.264)"},
@@ -432,7 +432,7 @@ MEDIA_DATA = [
         "director": "Chad Stahelski",
         "cast_ids": ["keanu-reeves"],
         "icc_ftp_path": "ftp://icc-stream.bd/Disk01/Movies/Hollywood/2023/John.Wick.Chapter.4.2023.2160p.HDR10.mkv",
-        "real_stream_url": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4",
+        "real_stream_url": "",  # John Wick: Chapter 4 is a commercial title with no free public stream
         "is_featured": False,
         "downloads": {
             "720p": {"resolution": "720p HD", "size": "1.20 GB", "bitrate": "2300 kbps", "format": "MP4 (H.264)"},
@@ -458,7 +458,7 @@ MEDIA_DATA = [
         "director": "Vince Gilligan",
         "cast_ids": ["bryan-cranston"],
         "icc_ftp_path": "ftp://icc-stream.bd/Disk03/TV_Shows/Breaking.Bad.Complete.Series.1080p.Remux/",
-        "real_stream_url": "https://vjs.zencdn.net/v/oceans.mp4",
+        "real_stream_url": "",  # Breaking Bad is a commercial title with no free public stream
         "is_featured": False,
         "seasons": [
             {
@@ -471,7 +471,7 @@ MEDIA_DATA = [
                         "duration": "58m",
                         "overview": "Diagnosed with terminal lung cancer, Walter White teams up with former pupil Jesse Pinkman.",
                         "thumbnail": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=80",
-                        "stream_url": "https://vjs.zencdn.net/v/oceans.mp4"
+                        "stream_url": ""
                     }
                 ]
             }
@@ -500,7 +500,7 @@ MEDIA_DATA = [
         "director": "Craig Mazin & Neil Druckmann",
         "cast_ids": ["pedro-pascal"],
         "icc_ftp_path": "ftp://icc-stream.bd/Disk04/TV_Shows/The.Last.of.Us.S01.2160p.MAX.WEB-DL.mkv",
-        "real_stream_url": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4",
+        "real_stream_url": "",  # The Last of Us is a commercial title with no free public stream
         "is_featured": False,
         "seasons": [
             {
@@ -513,7 +513,7 @@ MEDIA_DATA = [
                         "duration": "1h 21m",
                         "overview": "Twenty years after a fungal outbreak ravages the planet, Joel and Tess take on an escort mission.",
                         "thumbnail": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&auto=format&fit=crop&q=80",
-                        "stream_url": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4"
+                        "stream_url": ""
                     }
                 ]
             }
@@ -542,7 +542,7 @@ MEDIA_DATA = [
         "director": "Yuichiro Hayashi",
         "cast_ids": [],
         "icc_ftp_path": "ftp://icc-stream.bd/Disk06/Anime/Attack.on.Titan.Final.Season.Dual.Audio.1080p.mkv",
-        "real_stream_url": "https://vjs.zencdn.net/v/oceans.mp4",
+        "real_stream_url": "",  # Attack on Titan is a commercial title with no free public stream
         "is_featured": False,
         "seasons": [
             {
@@ -555,7 +555,7 @@ MEDIA_DATA = [
                         "duration": "61m",
                         "overview": "The colossal titans march across the world in Eren's final apocalyptic gambit.",
                         "thumbnail": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=80",
-                        "stream_url": "https://vjs.zencdn.net/v/oceans.mp4"
+                        "stream_url": ""
                     }
                 ]
             }

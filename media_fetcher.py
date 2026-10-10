@@ -47,19 +47,19 @@ STREAM_SERVERS = [
 ]
 
 # Verified high-speed zero-buffer streaming MP4 pools
+# These are ONLY used as genuine fallback for items that have no resolvable stream URL.
 VERIFIED_STREAM_POOLS = [
     "https://archive.org/download/charlie_chaplin_film_fest/charlie_chaplin_film_fest.mp4",
     "https://archive.org/download/TheFastandtheFuriousJohnIreland1954goofyrip/TheFastandtheFuriousJohnIreland1954goofyrip.mp4",
-    "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4",
-    "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4",
-    "https://vjs.zencdn.net/v/oceans.mp4",
     "https://archive.org/download/Doctorin1946/Doctorin1946.mp4",
     "https://archive.org/download/AboutBan1935/AboutBan1935.mp4",
     "https://archive.org/download/NightOfTheLivingDead1968/Night_of_the_Living_Dead.mp4"
 ]
 
 def fetch_tvmaze_shows(limit=50):
-    """Fetch popular international TV Shows and Web Series from TVMaze open API"""
+    """Fetch popular international TV Shows and Web Series from TVMaze open API.
+    Episode-level stream URLs are set to empty string — the player will show an
+    informational message rather than playing an unrelated random clip."""
     url = "https://api.tvmaze.com/shows?page=0"
     headers = {"User-Agent": "MAGStream/3.0"}
     req = urllib.request.Request(url, headers=headers)
@@ -90,7 +90,11 @@ def fetch_tvmaze_shows(limit=50):
                 show_id = f"tv-{item.get('id')}"
                 safe_slug = re.sub(r'[^a-zA-Z0-9]', '.', item.get("name", "Show"))
                 lang = item.get("language") or "English"
-                stream_url = VERIFIED_STREAM_POOLS[idx % len(VERIFIED_STREAM_POOLS)]
+
+                # No real stream URL available for commercial TV shows from TVMaze.
+                # Leave real_stream_url empty so the player shows a clear message
+                # instead of playing an unrelated random clip.
+                stream_url = ""
 
                 shows.append({
                     "id": show_id,
@@ -156,7 +160,10 @@ def fetch_tvmaze_shows(limit=50):
     return shows
 
 def fetch_github_movies(limit=45):
-    """Fetch international movies from open database with real stream links"""
+    """Fetch international movies from open database.
+    The GitHub dataset is metadata-only (no stream links), so real_stream_url
+    is left empty.  Only items from data.py with curated real stream URLs will
+    actually be playable from the library grid."""
     url = "https://raw.githubusercontent.com/erik-sytnyk/movies-list/master/db.json"
     headers = {"User-Agent": "MAGStream/3.0"}
     req = urllib.request.Request(url, headers=headers)
@@ -181,7 +188,10 @@ def fetch_github_movies(limit=45):
                 mid = f"mv-{item.get('id')}"
                 safe_slug = re.sub(r'[^a-zA-Z0-9]', '.', title)
                 poster = item.get("posterUrl") or "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=700&auto=format&fit=crop&q=80"
-                stream_url = VERIFIED_STREAM_POOLS[(idx + 2) % len(VERIFIED_STREAM_POOLS)]
+
+                # This dataset provides no stream URLs. Leave real_stream_url
+                # blank rather than assigning a random unrelated clip.
+                stream_url = ""
 
                 movies.append({
                     "id": mid,
@@ -214,14 +224,51 @@ def fetch_github_movies(limit=45):
         logger.warning("GitHub open movies fetch notice: %s", e)
     return movies
 
+def resolve_archive_stream_url(ident):
+    """Query Archive.org metadata API to find the best playable MP4 for an item."""
+    meta_url = f"https://archive.org/metadata/{ident}/files"
+    headers = {"User-Agent": "MAGStream/3.0"}
+    try:
+        req = urllib.request.Request(meta_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            files_data = json.loads(resp.read().decode('utf-8'))
+            files = files_data.get("result", [])
+            # Prefer .mp4 files; skip sample/thumbnail files
+            mp4_files = [
+                f["name"] for f in files
+                if isinstance(f, dict)
+                and f.get("name", "").lower().endswith(".mp4")
+                and "sample" not in f.get("name", "").lower()
+                and f.get("source", "") != "derivative"
+            ]
+            if not mp4_files:
+                # Accept derivative mp4s as a fallback
+                mp4_files = [
+                    f["name"] for f in files
+                    if isinstance(f, dict)
+                    and f.get("name", "").lower().endswith(".mp4")
+                    and "sample" not in f.get("name", "").lower()
+                ]
+            if mp4_files:
+                return f"https://archive.org/download/{ident}/{mp4_files[0]}"
+    except Exception as e:
+        logger.debug("Archive.org metadata lookup failed for %s: %s", ident, e)
+    # Fallback: guess the filename matches the identifier
+    return f"https://archive.org/download/{ident}/{ident}.mp4"
+
+
 def fetch_archive_feature_films(limit=25):
-    """Fetch feature films directly from Internet Archive Open Movie Repository"""
-    url = "https://archive.org/advancedsearch.php?q=collection:(feature_films)+AND+mediatype:(movies)&fl[]=identifier,title,description,year,downloads&sort[]=downloads+desc&rows=" + str(limit) + "&output=json"
+    """Fetch feature films directly from Internet Archive Open Movie Repository.
+    Stream URLs are resolved via the metadata API to get the real mp4 filename."""
+    url = ("https://archive.org/advancedsearch.php"
+           "?q=collection:(feature_films)+AND+mediatype:(movies)"
+           "&fl[]=identifier,title,description,year,downloads"
+           "&sort[]=downloads+desc&rows=" + str(limit) + "&output=json")
     headers = {"User-Agent": "MAGStream/3.0"}
     req = urllib.request.Request(url, headers=headers)
     films = []
     try:
-        with urllib.request.urlopen(req, timeout=4) as response:
+        with urllib.request.urlopen(req, timeout=6) as response:
             data = json.loads(response.read().decode('utf-8'))
             docs = data.get("response", {}).get("docs", [])
             for doc in docs:
@@ -234,7 +281,8 @@ def fetch_archive_feature_films(limit=25):
                 clean_desc = re.sub('<[^<]+?>', '', desc)[:250] + "..."
 
                 poster_url = f"https://archive.org/services/img/{ident}"
-                stream_url = f"https://archive.org/download/{ident}/{ident}.mp4"
+                # Use the metadata API to resolve the actual mp4 filename
+                stream_url = resolve_archive_stream_url(ident)
 
                 films.append({
                     "id": f"arc-{ident}",
@@ -268,7 +316,8 @@ def fetch_archive_feature_films(limit=25):
     return films
 
 def get_aggregated_media():
-    """Combines curated multi-era & multi-language titles with dynamic server feeds"""
+    """Combines curated multi-era & multi-language titles with dynamic server feeds.
+    Only items with a real_stream_url are guaranteed to be playable."""
     from data import MEDIA_DATA
 
     combined = list(MEDIA_DATA)
@@ -295,12 +344,12 @@ def get_aggregated_media():
             combined.append(film)
             existing_ids.add(film["id"])
 
-    # Ensure all items have stream_servers and a valid real_stream_url
-    for idx, item in enumerate(combined):
+    # Ensure all items have stream_servers.
+    # Do NOT assign a random pool URL to items with no real stream URL —
+    # leave real_stream_url empty so the player can show a proper message.
+    for item in combined:
         if "stream_servers" not in item:
             item["stream_servers"] = STREAM_SERVERS
-        if "real_stream_url" not in item or not item["real_stream_url"]:
-            item["real_stream_url"] = VERIFIED_STREAM_POOLS[idx % len(VERIFIED_STREAM_POOLS)]
 
     return combined
 
